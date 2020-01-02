@@ -5,25 +5,28 @@
 #include <MsTimer2.h>
 #include <IRremote.h>
 #include <LiquidCrystal_I2C.h>
+#include <Wire.h>
+
+
+
 Servo msetc;  // create servo object to control a servo 
 Servo msin;
 Servo msout;// twelve servo objects can be created on most boards
 LiquidCrystal_I2C lcd(0x27,16,2);
 
+#define TRAFFICADDR 0x11
 #define RED 5000
 #define GREEN 5000
-#define DZETC  5
-#define DZIN   6
-#define DZOUT  9
+#define DZETC  A2  //蓝色
+#define DZIN   A0  
+#define DZOUT  A1  //黄色
 #define DZTIME 3000
-#define FAN1 A1
-#define FAN2 A2
-#define FAN3 A3
-#define IRETC 12
-#define IRIN  10
-#define IROUT 11
-#define IRHLD 3 //中断 1
-#define HLDRED 8
+
+#define IRETC 6
+#define IRIN 3
+#define IROUT 5
+#define IRHLD 8 
+#define HLDRED 12
 #define HLDGREEN 7
 SoftwareSerial che(4,2);  // RX, TX
 void up(Servo ser);
@@ -33,6 +36,7 @@ void redlight();
 
 int lighgtcolor=0;
 int pos=0;
+int cf=0;
 
 //IRrecv irrecv(11);
 
@@ -55,6 +59,11 @@ Serial.begin(9600);
 che.begin(9600);
 MsTimer2::set(5000, onTimer); //
 MsTimer2::start(); //
+
+
+
+Wire.begin(TRAFFICADDR);
+
 //attachInterrupt(digitalPinToInterrupt(3), redlight, HIGH); //
 
 //irrecv.enableIRIn(); 
@@ -76,29 +85,47 @@ void loop() {
   }
   
 
-
+cf=0;
  if(digitalRead(IRETC)==LOW)
  {
-  Serial.println("etc ir");
+cf++;
+  }
+  if (cf>0)
+  {
   up(msetc);
   delay(DZTIME);
   down(msetc);
+  delay(DZTIME);
+
   }
-  
-        
+    
+  cf=0;
   if(digitalRead(IRIN)==LOW){
     //IN
+    cf++;
+  }
+  if (cf>0)
+  {
   Serial.println("in ir");
   up(msin);
   delay(DZTIME);
   down(msin);
+  delay(DZTIME);
+
   }
+  
+cf=0;
 
 if(digitalRead(IROUT)==LOW){
+  cf++;
+}
+if (cf>0){
 Serial.println("out ir");
 up(msout);
 delay(DZTIME);
 down(msout);
+delay(DZTIME);
+
   }
    
 }
@@ -111,6 +138,7 @@ void up(Servo ser){
 
 void down(Servo ser){
    ser.write(90);
+   cf=0;
   }
   
 void onTimer()

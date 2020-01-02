@@ -2,31 +2,17 @@
 
 #include <Wire.h>
 
-#define NONGYEADDR 0x10
+#define NONGYEADDR 0x10 //农业地址
 
-#define FAN 9
-#define DPOPEN  11
-#define DPCLOSE 10
+#define FAN 12
+#define PUMP 13
+#define DPOPEN  7
+#define DPCLOSE 8
 
 
 
 int x=0;
 //1 dkfan 2 gbfan 3 dkdp 4 gbdp
-void setup() {
-  // put your setup code here, to run once:
-Wire.begin(NONGYEADDR);
-Wire.onReceive(receiveEvent);
-Serial.begin(9600);
-pinMode(FAN,OUTPUT);
-pinMode(DPOPEN,OUTPUT);
-pinMode(DPCLOSE,OUTPUT);
-
-}
-
-void loop() {
-  // put your main code here, to run repeatedly:
-
-}
 
 void receiveEvent(int howMany){
   
@@ -43,16 +29,48 @@ void receiveEvent(int howMany){
     digitalWrite(DPCLOSE,LOW);
     delay(100);
     digitalWrite(DPOPEN,HIGH);
-    delay(10000); //10s
-        digitalWrite(DPOPEN,LOW);
+    delay(500); //10s
+    digitalWrite(DPOPEN,LOW);
 
     }
      if(x==4) {
     digitalWrite(DPOPEN,LOW);
-    delay(100);
+    delay(10);
     digitalWrite(DPCLOSE,HIGH);
-    delay(10000);
+    delay(500);
     digitalWrite(DPCLOSE,LOW);
 
      }
+     if (x==5)
+     {
+       //kai pump
+       digitalWrite(PUMP,HIGH);
+       delay(20);
+       /* code */
+     }
+     if (x==6)
+     {
+       digitalWrite(PUMP,LOW);
+       delay(20);
+     }
+     
+     
   }
+void setup() {
+  // put your setup code here, to run once:
+Wire.begin(NONGYEADDR);
+Wire.onReceive(receiveEvent);
+Serial.begin(9600);
+pinMode(FAN,OUTPUT);
+pinMode(DPOPEN,OUTPUT);
+pinMode(DPCLOSE,OUTPUT);
+pinMode (PUMP,OUTPUT);
+
+//digitalWrite(PUMP,HIGH);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+}
+
